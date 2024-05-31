@@ -8,16 +8,21 @@
         "src/sync.cc",
         "src/async.cc"
       ],
-      'cflags!': [ '-fno-exceptions' ],
-      'cflags_cc!': [ '-fno-exceptions' ],
+      'cflags!': ['-fno-exceptions', '-O3'],
+      'cflags_cc!': ['-fno-exceptions', '-O3'],
       'include_dirs': [
         "libpg_query/include",
-        "<!@(node -p \"require('node-addon-api').include\")"
+        "<!@(node -p \"require('node-addon-api').include\")",
+        "<!(pkg-config --variable=includedir protobuf)"
       ],
       'dependencies': ["<!(node -p \"require('node-addon-api').gyp\")"],
       'conditions': [
         ['OS=="linux"', {
-          "libraries": [ "-L<!(pwd)/libpg_query/linux", "-lpg_query" ],
+          "libraries": [
+            "-L<!(pwd)/libpg_query/linux",
+            "-lpg_query",
+            "<!(pkg-config --variable=libdir protobuf)/libprotobuf.a"
+          ],
           "actions": [
             {
               "outputs": ['libpg_query/include/pg_query.h'],
@@ -28,7 +33,11 @@
           ],
         }],
         ['OS=="mac"', {
-          "libraries": [ "-L<!(pwd)/libpg_query/osx", "-lpg_query" ],
+          "libraries": [
+            "-L<!(pwd)/libpg_query/osx",
+            "-lpg_query",
+            "<!(pkg-config --variable=libdir protobuf)/libprotobuf.a"
+          ],
           "xcode_settings": {
             "CLANG_CXX_LIBRARY": "libc++",
             'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
